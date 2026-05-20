@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Style Creature</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        canvas {
+            border: 4px solid #333;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            background: transparent;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #downloadBtn {
+            background: #2196F3;
+        }
+        
+        #downloadBtn:hover {
+            background: #0b7dda;
+        }
+        
+        .info {
+            color: white;
+            margin-top: 15px;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Minecraft Style Creature 🎮</h1>
+        <canvas id="canvas" width="800" height="800"></canvas>
+        <div class="controls">
+            <button id="toggleEmission">Toggle Emission</button>
+            <button id="downloadBtn">Download PNG</button>
+        </div>
+        <div class="info">Emission effect: <span id="emissionStatus">ON</span></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let showEmission = true;
+        let animationFrame = 0;
+        
+        // Minecraft-style pixelated creature design
+        // Based on the blue ice/crystal golem creature
+        const pixelSize = 16;
+        const gridWidth = canvas.width / pixelSize;
+        const gridHeight = canvas.height / pixelSize;
+        
+        // Color palette (Minecraft-style limited colors)
+        const colors = {
+            darkBlue: '#1a2332',
+            mediumBlue: '#2d4663',
+            lightBlue: '#4a7ba7',
+            skyBlue: '#6ba3d4',
+            brightBlue: '#8fc9ff',
+            glowBlue: '#00aaff',
+            veryDarkBlue: '#0d1419',
+            shadow: 'rgba(100, 100, 100, 0.5)'
+        };
+        
+        // Creature pixel art data (simplified blocky version)
+        function drawCreature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = gridWidth / 2;
+            const centerY = gridHeight / 2;
+            
+            // Shadow
+            drawPixel(centerX - 2, centerY + 10, colors.shadow);
+            drawPixel(centerX - 1, centerY + 10, colors.shadow);
+            drawPixel(centerX, centerY + 10, colors.shadow);
+            drawPixel(centerX + 1, centerY + 10, colors.shadow);
+            drawPixel(centerX + 2, centerY + 10, colors.shadow);
+            
+            // Left leg
+            drawPixel(centerX - 3, centerY + 7, colors.darkBlue);
+            drawPixel(centerX - 3, centerY + 8, colors.darkBlue);
+            drawPixel(centerX - 3, centerY + 9, colors.veryDarkBlue);
+            drawPixel(centerX - 2, centerY + 9, colors.darkBlue);
+            
+            // Right leg
+            drawPixel(centerX + 2, centerY + 7, colors.darkBlue);
+            drawPixel(centerX + 2, centerY + 8, colors.darkBlue);
+            drawPixel(centerX + 2, centerY + 9, colors.veryDarkBlue);
+            drawPixel(centerX + 1, centerY + 9, colors.darkBlue);
+            
+            // Main body (lower)
+            for (let y = 3; y <= 6; y++) {
+                for (let x = -2; x <= 2; x++) {
+                    if (Math.abs(x) === 2) {
+                        drawPixel(centerX + x, centerY + y, colors.mediumBlue);
+                    } else {
+                        drawPixel(centerX + x, centerY + y, colors.lightBlue);
+                    }
+                }
+            }
+            
+            // Main body (upper) - larger
+            for (let y = -2; y <= 2; y++) {
+                for (let x = -3; x <= 3; x++) {
+                    if (Math.abs(x) === 3 || y === -2) {
+                        drawPixel(centerX + x, centerY + y, colors.mediumBlue);
+                    } else {
+                        drawPixel(centerX + x, centerY + y, colors.lightBlue);
+                    }
+                }
+            }
+            
+            // Head/top crystals
+            drawPixel(centerX - 2, centerY - 3, colors.skyBlue);
+            drawPixel(centerX - 1, centerY - 3, colors.brightBlue);
+            drawPixel(centerX, centerY - 3, colors.lightBlue);
+            drawPixel(centerX + 1, centerY - 3, colors.brightBlue);
+            drawPixel(centerX + 2, centerY - 3, colors.skyBlue);
+            
+            drawPixel(centerX - 1, centerY - 4, colors.brightBlue);
+            drawPixel(centerX, centerY - 4, colors.skyBlue);
+            drawPixel(centerX + 1, centerY - 4, colors.brightBlue);
+            
+            drawPixel(centerX, centerY - 5, colors.brightBlue);
+            
+            // Left arm/crystal
+            drawPixel(centerX - 4, centerY + 1, colors.mediumBlue);
+            drawPixel(centerX - 5, centerY + 2, colors.lightBlue);
+            drawPixel(centerX - 5, centerY + 3, colors.skyBlue);
+            drawPixel(centerX - 4, centerY + 3, colors.mediumBlue);
+            
+            // Right arm/spike
+            drawPixel(centerX + 4, centerY + 2, colors.veryDarkBlue);
+            drawPixel(centerX + 5, centerY + 3, colors.darkBlue);
+            drawPixel(centerX + 5, centerY + 4, colors.darkBlue);
+            drawPixel(centerX + 6, centerY + 5, colors.veryDarkBlue);
+            
+            // Right shoulder skull/decoration
+            drawPixel(centerX + 3, centerY - 1, colors.skyBlue);
+            drawPixel(centerX + 4, centerY - 1, colors.brightBlue);
+            drawPixel(centerX + 4, centerY, colors.lightBlue);
+            
+            // Eyes and glowing orbs (with emission)
+            if (showEmission) {
+                const glowIntensity = Math.sin(animationFrame * 0.1) * 0.3 + 0.7;
+                const glowColor = `rgba(0, 170, 255, ${glowIntensity})`;
+                
+                // Left eye/orb (large)
+                drawGlowingPixel(centerX - 4, centerY, colors.glowBlue, glowColor);
+                drawPixel(centerX - 4, centerY - 1, colors.brightBlue);
+                
+                // Top orb
+                drawGlowingPixel(centerX - 1, centerY - 1, colors.glowBlue, glowColor);
+                
+                // Center orb
+                drawGlowingPixel(centerX + 1, centerY + 1, colors.glowBlue, glowColor);
+                
+                // Small right eye
+                drawGlowingPixel(centerX + 3, centerY, colors.glowBlue, glowColor);
+            } else {
+                // Without emission
+                drawPixel(centerX - 4, centerY, colors.brightBlue);
+                drawPixel(centerX - 4, centerY - 1, colors.brightBlue);
+                drawPixel(centerX - 1, centerY - 1, colors.brightBlue);
+                drawPixel(centerX + 1, centerY + 1, colors.brightBlue);
+                drawPixel(centerX + 3, centerY, colors.brightBlue);
+            }
+        }
+        
+        function drawPixel(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+            
+            // Add Minecraft-style shading
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize / 2);
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(x * pixelSize, y * pixelSize + pixelSize / 2, pixelSize, pixelSize / 2);
+        }
+        
+        function drawGlowingPixel(x, y, baseColor, glowColor) {
+            // Draw glow effect
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = glowColor;
+            ctx.fillStyle = baseColor;
+            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            
+            // Add bright center
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fillRect(x * pixelSize + pixelSize/4, y * pixelSize + pixelSize/4, pixelSize/2, pixelSize/2);
+        }
+        
+        function animate() {
+            animationFrame++;
+            drawCreature();
+            requestAnimationFrame(animate);
+        }
+        
+        // Toggle emission
+        document.getElementById('toggleEmission').addEventListener('click', () => {
+            showEmission = !showEmission;
+            document.getElementById('emissionStatus').textContent = showEmission ? 'ON' : 'OFF';
+        });
+        
+        // Download function
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'minecraft_creature.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+        
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>
